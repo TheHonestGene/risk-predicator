@@ -15,3 +15,6 @@ def predict(genotype_file,trait,**kwargs):
     log.info('Finished prediction',extra=log_extra)
     import random
     return random.random()
+
+
+#Risk prediction
