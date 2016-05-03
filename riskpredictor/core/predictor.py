@@ -2,6 +2,9 @@
 
 Risk prediction pre-calculation pipeline:
      0. Parse relevant summary statistics into HDF5 files, and prepare prediction genotype maps (for each supported genotype data format).
+         a) Sum stats into HDF5
+         b) LD ref file
+         c) ...
      1. Identify the set of SNPs across: 
          a) the summary statistics 
          b) the LD-reference panel 
@@ -10,6 +13,8 @@ Risk prediction pre-calculation pipeline:
      2. Run LDpred using the summary statistics and the LD-reference panel.  
      3. Validate using the danish High school students
      4. Set up prediction for a 23andme genotype, and store weights in a trait_file
+         - weights for SNPs that we ignore will be set to 0.
+         - 
     
 When the resulting SNP weight files for each trait are available, we can use them to obtain the polygenic scores for each 
 trait relatively easily using 
@@ -85,6 +90,14 @@ def get_sid_pos_map(sids, KGenomes_prefix):
             sid_map[sid]={'pos':pos, 'chrom':chrom_i, 'eur_maf':eur_maf}
     return sid_map
 
+def parse_BMI_HEIGHT():
+    bmi_file = 'SNP_gwas_mc_merge_nogc.tbl.uniq'
+    height_file = 'GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
+    KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes'
+    comb_hdf5_file = 'HEIGHT_BMI.hdf5'
+    bimfile = '/home/bjarni/TheHonestGene/faststorage/wayf.bim'
+    
+    parse_sum_stats(bmi_file,KGpath=KGpath,ss_id='BMI',bimfile=)
 
 def parse_sum_stats(filename,
                     comb_hdf5_file,
@@ -1291,5 +1304,8 @@ def coordinate_prediction_datasets(val_genotype_file = None,
     print 'There were %d SNPs in common' % num_common_snps
     print 'In all, %d SNPs were excluded due to nucleotide issues.' % tot_num_non_matching_nts 
     print 'Done!'
+
+
+
 
     
