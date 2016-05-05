@@ -39,8 +39,9 @@ def parse_BMI_HEIGHT():
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes/'
     comb_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
     bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'
-    parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
+#     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
 
+    parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath,bimfile=bimfile)
 
 
 
@@ -116,15 +117,15 @@ def parse_sum_stats(filename,
     if bimfile!=None:
         print 'Parsing SNP list'
         valid_sids = set()
-        print 'Parsing bim file: %s'%bimfile
+        print 'Parsing .bim file: %s'%bimfile
         with open(bimfile) as f:
             for line in f:
                 l = line.split()
                 valid_sids.add(l[1])
-        print len(valid_sids)
+        print 'Found %d SNPs in .bim file'%len(valid_sids)
     chrom_dict = {}
 
-    print 'Retrieving 1K genomes positions..'
+    print 'Retrieving 1K genomes positions.'
     sids = []
     with open(filename) as f:
         
@@ -149,6 +150,11 @@ def parse_sum_stats(filename,
             for line in f:
                 l = line.split()
                 sids.append(l[0])
+                
+    if bimfile!=None:
+        valid_sids_filter = sp.in1d(valid_sids, sp.array(sids)) 
+        sids = valid_sids[valid_sids_filter]
+
     sid_map = get_sid_pos_map(sids,KGpath)
     assert len(sid_map)>0, 'WTF?'
 
