@@ -116,16 +116,17 @@ def parse_sum_stats(filename,
     h5f = h5py.File(comb_hdf5_file)
     if bimfile!=None:
         print 'Parsing SNP list'
-        valid_sids = set()
+        valid_sids = []
         print 'Parsing .bim file: %s'%bimfile
         with open(bimfile) as f:
             for line in f:
                 l = line.split()
-                valid_sids.add(l[1])
+                valid_sids.append(l[1])
         print 'Found %d SNPs in .bim file'%len(valid_sids)
+        valid_sids = sp.array(valid_sids)
     chrom_dict = {}
 
-    print 'Retrieving 1K genomes positions.'
+    print 'Parsing SNP rsIDs from summary statistics.'
     sids = []
     with open(filename) as f:
         
@@ -155,6 +156,7 @@ def parse_sum_stats(filename,
         valid_sids_filter = sp.in1d(valid_sids, sp.array(sids)) 
         sids = valid_sids[valid_sids_filter]
 
+    print 'Retrieving 1K genomes positions.'
     sid_map = get_sid_pos_map(sids,KGpath)
     assert len(sid_map)>0, 'WTF?'
 
