@@ -24,7 +24,7 @@ trait relatively easily using
 
 
 import logging
-from plinkio import plinkfile
+#from plinkio import plinkfile
 import h5py
 import scipy as sp
 from scipy import stats
