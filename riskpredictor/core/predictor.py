@@ -37,7 +37,7 @@ def parse_BMI_HEIGHT():
     height_file = 'GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes'
     comb_hdf5_file = 'HEIGHT_BMI.hdf5'
-    bimfile = '/home/bjarni/TheHonestGene/faststorage/wayf.bim'
+    bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'
     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
 
 
