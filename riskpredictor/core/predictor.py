@@ -33,10 +33,10 @@ import random
 
 
 def parse_BMI_HEIGHT():
-    bmi_file = 'SNP_gwas_mc_merge_nogc.tbl.uniq'
-    height_file = 'GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
+    bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/SNP_gwas_mc_merge_nogc.tbl.uniq'
+    height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes'
-    comb_hdf5_file = 'HEIGHT_BMI.hdf5'
+    comb_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
     bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'
     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
 
