@@ -1,19 +1,28 @@
 """
 
 Risk prediction pre-calculation pipeline:
-     0. Parse relevant summary statistics into HDF5 files, and prepare prediction genotype maps (for each supported genotype data format).
-         a) Sum stats into HDF5
-         b) LD ref file
-         c) ...
-     1. Identify the set of SNPs across: 
-         a) the summary statistics 
-         b) the LD-reference panel 
-         c) the validation data set 
-         d) the prediction genotype map.
-     2. Run LDpred using the summary statistics and the LD-reference panel.  
+     0. Prepare a plink-formatted validation and LD reference genotype file.  
+
+     1. Parse relevant summary statistics into a HDF5 file(s)
+         - Use parse_BMI_HEIGHT or similar function. 
+         - It identifies the set of SNPs used by 
+             a) the summary statistics 
+             b) 1K genomes
+             c) the LD-reference (and validation) genotypes 
+             d) A HonestGene individual genotype (e.g. 23andme v4)
+    
+     2. Coordinate the summary statistics, LD-reference (and validation) genotypes. 
+         - Use coordinate_datasets or similar
+     3. Train prediction SNP weights.
+         - Run LDpred using the coordinated file.  
+     4. Validate prediction using validation data
+         - Run LDpred to get validation.
+     5. Coordinate SNP weights directions with a HonestGene individual genotype (e.g. 23andme v4)
+         - missing weights for HG IG SNPs will be set to 0.
+     6. Validate using 1K genomes.
+         
      3. Validate using the danish High school students
      4. Set up prediction for a 23andme genotype, and store weights in a trait_file
-         - weights for SNPs that we ignore will be set to 0.
          - 
     
 When the resulting SNP weight files for each trait are available, we can use them to obtain the polygenic scores for each 
@@ -33,15 +42,21 @@ import random
 
 
 
+
 def parse_BMI_HEIGHT():
+    
     bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/SNP_gwas_mc_merge_nogc.tbl.uniq'
     height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes/'
     comb_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
-    bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'
-    parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
-
-#     parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath,bimfile=bimfile)
+    bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'  #This is the LD reference and validation data SNP file.
+    hg_indiv_genot_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/imputed.hdf5'  #the individual genotype example
+    ig_h5f = h5py.File(hg_indiv_genot_file)
+    ok_sids = []
+    for chrom in ig_h5f.keys():
+        ok_sids.extend(ig_h5f[chrom]['sids'])
+    parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath,bimfile=bimfile, ok_sids=ok_sids)
+    parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile, hg_indiv_genot_file, ok_sids=ok_sids)
 
 
 
@@ -110,7 +125,8 @@ def parse_sum_stats(filename,
                     comb_hdf5_file,
                     ss_id,
                     KGpath,
-                    bimfile=None,):
+                    bimfile=None,
+                    ok_sids=None):
     """
     """
     h5f = h5py.File(comb_hdf5_file)
@@ -125,6 +141,12 @@ def parse_sum_stats(filename,
         print 'Found %d SNPs in .bim file'%len(valid_sids)
         valid_sids = sp.array(valid_sids)
     chrom_dict = {}
+    
+    if ok_sids !=None:
+        valid_sids_filter = sp.in1d(valid_sids, sp.array(ok_sids)) 
+        valid_sids = valid_sids[valid_sids_filter]
+        print 'Retained %d SNPs after removing SNPs not in HG indiv. genotype.'%len(valid_sids)
+        
 
     print 'Parsing SNP rsIDs from summary statistics.'
     sids = []
@@ -933,7 +955,7 @@ def _get_chrom_dict_(loci, chromosomes):
     return chr_dict
 
 
-def coordinate_prediction_datasets(val_genotype_file = None,
+def coordinate_datasets(val_genotype_file = None,
                                     ref_genotype_file = None,
                                     sum_stat_file = None,
                                     pred_genotype_map=None,
