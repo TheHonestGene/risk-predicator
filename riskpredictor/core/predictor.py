@@ -3,7 +3,7 @@
 Risk prediction pre-calculation pipeline:
      0. Prepare a plink-formatted validation and LD reference genotype file.  
 
-     1. Parse relevant summary statistics into a HDF5 file(s)
+     1. Parse relevant summary statistics into a HDF5 file(s) 
          - Use parse_BMI_HEIGHT or similar function. 
          - It identifies the set of SNPs used by 
              a) the summary statistics 
@@ -11,9 +11,9 @@ Risk prediction pre-calculation pipeline:
              c) the LD-reference (and validation) genotypes 
              d) A HonestGene individual genotype (e.g. 23andme v4)
     
-     2. Coordinate the summary statistics, LD-reference (and validation) genotypes. 
-         - Use coordinate_datasets or similar
-     3. Train prediction SNP weights.
+     2. Coordinate the summary statistics and LD-reference (and validation) genotypes, to create a LDpred prediction data file 
+         - Use coordinate_LDpred_data or similar
+     3. Train prediction SNP weights. (Use ldpred: https://bitbucket.org/bjarni_vilhjalmsson/ldpred)
          - Run LDpred using the coordinated file.  
      4. Validate prediction using validation data
          - Run LDpred to get validation.
@@ -33,7 +33,7 @@ trait relatively easily using
 
 
 import logging
-#from plinkio import plinkfile
+from plinkio import plinkfile
 import itertools as it
 import h5py
 import scipy as sp
@@ -58,6 +58,18 @@ def parse_BMI_HEIGHT():
     parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath, bimfile=bimfile, ok_sids=ok_sids)
     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile, ok_sids=ok_sids)
 
+
+def coordinate_BMI_HEIGHT():
+    ss_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
+    coord_height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF_HEIGHT.hdf5'
+    coord_bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF_BMI.hdf5'
+    ld_ref_prefix = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf'  #This is the LD reference and validation data SNP file.
+
+    coordinate_LDpred_data(genotype_file=ld_ref_prefix,
+                           hdf5_file=coord_height_file,
+                           ss_file=ss_hdf5_file,
+                           ss_id = 'height',
+                           min_maf =0.01):
 
 
                    
@@ -955,30 +967,29 @@ def _get_chrom_dict_(loci, chromosomes):
     return chr_dict
 
 
-def coordinate_datasets(val_genotype_file = None,
-                                    ref_genotype_file = None,
-                                    sum_stat_file = None,
-                                    pred_genotype_map=None,
-                                    min_maf=0.01):
+def coordinate_LDpred_data(genotype_file=None,
+                           coord_hdf5_file=None,
+                           ss_file=None,
+                           ss_id=None,
+                           genetic_map_dir=None,
+                           check_mafs=False,
+                           min_maf =0.01):
     """
-    Coordinates the genotypes across 4 data sets: 
+    Coordinates the genotypes across 2 data sets: 
         a) the summary statistics 
-        b) the LD-reference panel 
-        c) the validation data set 
-        d) the prediction genotype
+        b) the LD-reference panel
+
+    Assumes plink BED files.  Imputes missing genotypes.
     """
     
-#   recode_dict = {1:'A', 2:'T', 3:'C', 4:'G'} #1K genomes recoding..
-    print 'Coordinating datafiles w validation genotype file: %s \nref. genot. file: %s\nsum. stat. file: %s\npred. genotype map file:%s'%(val_genotype_file, ref_genotype_file, sum_stat_file, pred_genotype_map) 
-    plinkf = plinkfile.PlinkFile(val_genotype_file)
-    
-    #Loads only the individuals... (I think?)
+    plinkf = plinkfile.PlinkFile(genotype_file)
     samples = plinkf.get_samples()
     num_individs = len(samples)
+#        num_individs = len(gf['chrom_1']['snps'][:, 0])
+#     Y = sp.array(gf['indivs']['phenotype'][...] == 'Case', dtype='int8')
     Y = [s.phenotype for s in samples]
     fids = [s.fid for s in samples]
     iids = [s.iid for s in samples]
-    
     unique_phens = sp.unique(Y)
     if len(unique_phens)==1:
         print 'Unable to find phenotype values.'
@@ -991,57 +1002,36 @@ def coordinate_datasets(val_genotype_file = None,
     else:
         print 'Found quantitative phenotype values'
         has_phenotype=True
+    risk_scores = sp.zeros(num_individs)
+    rb_risk_scores = sp.zeros(num_individs)
+    num_common_snps = 0
+    corr_list = []
+    rb_corr_list = []
 
-    #Figure out chromosomes and positions.  
-    print 'Parsing validation genotype bim file'
+    if has_phenotype:
+        coord_hdf5_file.create_dataset('y', data=Y)
+    
+    coord_hdf5_file.create_dataset('fids', data=fids)
+    coord_hdf5_file.create_dataset('iids', data=iids)
+    ss_h5f = h5py.File(ss_file)
+    ssf = ss_h5f[ss_id]
+    cord_data_g = coord_hdf5_file.create_group('cord_data')
+
+    #Figure out chromosomes and positions by looking at SNPs.  
     loci = plinkf.get_loci()
     plinkf.close()
     gf_chromosomes = [l.chromosome for l in loci] 
 
     chromosomes = sp.unique(gf_chromosomes)
     chromosomes.sort()
-    
     chr_dict = _get_chrom_dict_(loci, chromosomes)
-
-    print 'Parsing LD reference genotype bim file'
-    plinkf_ref = plinkfile.PlinkFile(ref_genotype_file)
-    loci_ref = plinkf_ref.get_loci()
-    plinkf_ref.close()
     
-    chr_dict_ref = _get_chrom_dict_(loci_ref, chromosomes)
-#     chr_dict_ref = _get_chrom_dict_bim_(reference_genotype_file+'.bim', chromosomes)
-    
-    
-    print 'Parsing the summary statistics'
-    
-    #Open HDF5 file and prepare out data
-    assert not 'iids' in hdf5_file.keys(), 'Something is wrong with the HDF5 file?'
-    if has_phenotype:
-        hdf5_file.create_dataset('y', data=Y)
-    
-    hdf5_file.create_dataset('fids', data=fids)
-    hdf5_file.create_dataset('iids', data=iids)
-    ssf = hdf5_file['sum_stats']
-    cord_data_g = hdf5_file.create_group('cord_data')
-
-    maf_adj_risk_scores = sp.zeros(num_individs)
-    num_common_snps = 0
-    #corr_list = []
-    
-    tot_g_ss_nt_concord_count = 0
-    tot_rg_ss_nt_concord_count = 0
-    tot_g_rg_nt_concord_count = 0    
     tot_num_non_matching_nts = 0
-   
-    #Now iterate over chromosomes
     for chrom in chromosomes:
-        ok_indices = {'g':[], 'rg':[], 'ss':[]}
-        
         chr_str = 'chrom_%d'%chrom
         print 'Working on chromsome: %s'%chr_str
         
         chrom_d = chr_dict[chr_str]
-        chrom_d_ref = chr_dict_ref[chr_str]
         try:
             ssg = ssf['chrom_%d' % chrom]
         except Exception, err_str:
@@ -1050,94 +1040,57 @@ def coordinate_datasets(val_genotype_file = None,
             print 'Continuing.'
             continue
 
-        ssg = ssf['chrom_%d' % chrom]
         g_sids = chrom_d['sids']
-        rg_sids = chrom_d_ref['sids']
+        g_sid_set = set(g_sids)
+        assert len(g_sid_set) == len(g_sids), 'Some duplicates?'
         ss_sids = ssg['sids'][...]
-        print 'Found %d SNPs in validation data, %d SNPs in LD reference data, and %d SNPs in summary statistics.'%(len(g_sids), len(rg_sids), len(ss_sids))
-        common_sids = sp.intersect1d(ss_sids, g_sids)
-        common_sids = sp.intersect1d(common_sids, rg_sids)
-        print 'Found %d SNPs on chrom %d that were common across all datasets'%(len(common_sids), chrom)
+        ss_sid_set = set(ss_sids)
+        assert len(ss_sid_set) == len(ss_sids), 'Some duplicates?'
 
-        ss_snp_map = []
-        g_snp_map = []
-        rg_snp_map = []
-        
-        ss_sid_dict = {}
-        for i, sid in enumerate(ss_sids):
-            ss_sid_dict[sid]=i
+        #Figure out filters:
+        g_filter = sp.in1d(g_sids,ss_sids)
+        ss_filter = sp.in1d(ss_sids,g_sids)
 
-        g_sid_dict = {}
-        for i, sid in enumerate(g_sids):
-            g_sid_dict[sid]=i
+        #Order by SNP IDs
+        g_order = sp.argsort(g_sids)
+        ss_order = sp.argsort(ss_sids)
 
-        rg_sid_dict = {}
-        for i, sid in enumerate(rg_sids):
-            rg_sid_dict[sid]=i
-            
-        for sid in common_sids:
-            g_snp_map.append(g_sid_dict[sid])
-        
-        #order by positions
-        g_positions = sp.array(chrom_d['positions'])[g_snp_map]
-        order = sp.argsort(g_positions)
-        #order = order.tolist()
-        g_snp_map = sp.array(g_snp_map)[order]
-        g_snp_map = g_snp_map.tolist()
-        common_sids = sp.array(common_sids)[order]
+        g_indices = []
+        for g_i in g_order:
+            if g_filter[g_i]:
+                g_indices.append(g_i)
 
-        #Get the other two maps
-        for sid in common_sids:
-            rg_snp_map.append(rg_sid_dict[sid])
-        
-        for sid in common_sids:
-            ss_snp_map.append(ss_sid_dict[sid])
-            
-        
-        g_nts = sp.array(chrom_d['nts'])
-        rg_nts = sp.array(chrom_d_ref['nts'])
-        rg_nts_ok = sp.array(rg_nts)[rg_snp_map]
-#         rg_nts_l = []
-#         for nt in rg_nts_ok:
-#             rg_nts_l.append([recode_dict[nt[0]],recode_dict[nt[1]]])
-#         rg_nts_ok = sp.array(rg_nts_l)
+        ss_indices = []
+        for ss_i in ss_order:
+            if ss_filter[ss_i]:
+                ss_indices.append(ss_i)
+
+        g_nts = chrom_d['nts']
+        snp_indices = chrom_d['snp_indices']
         ss_nts = ssg['nts'][...]
         betas = ssg['betas'][...]
         log_odds = ssg['log_odds'][...]
-
-        if 'freqs' in ssg.keys():
-            ss_freqs = ssg['freqs'][...]
-
-        g_ss_nt_concord_count = sp.sum(g_nts[g_snp_map] == ss_nts[ss_snp_map])/2.0
-        rg_ss_nt_concord_count = sp.sum(rg_nts_ok == ss_nts[ss_snp_map])/2.0
-        g_rg_nt_concord_count = sp.sum(g_nts[g_snp_map] == rg_nts_ok)/2.0
-        print 'Nucleotide concordance counts out of %d genotypes: vg-g: %d, vg-ss: %d, g-ss: %d'%(len(g_snp_map),g_rg_nt_concord_count, g_ss_nt_concord_count, rg_ss_nt_concord_count)
-        tot_g_ss_nt_concord_count += g_ss_nt_concord_count
-        tot_rg_ss_nt_concord_count += rg_ss_nt_concord_count
-        tot_g_rg_nt_concord_count += g_rg_nt_concord_count
-
+        assert not sp.any(sp.isnan(betas)), 'WTF?'
+        assert not sp.any(sp.isinf(betas)), 'WTF?'
 
         num_non_matching_nts = 0
         num_ambig_nts = 0
-
-
-        #Identifying which SNPs have nucleotides that are ok..
         ok_nts = []
-        for g_i, rg_i, ss_i in it.izip(g_snp_map, rg_snp_map, ss_snp_map):
-            
-            #To make sure, is the SNP id the same?
-            assert g_sids[g_i]==rg_sids[rg_i]==ss_sids[ss_i], 'Some issues with coordinating the genotypes.'
-            
-            g_nt = g_nts[g_i]
-            rg_nt = rg_nts[rg_i]
-#             rg_nt = [recode_dict[rg_nts[rg_i][0]],recode_dict[rg_nts[rg_i][1]]]
-            ss_nt = ss_nts[ss_i]
+        print 'Found %d SNPs present in both datasets'%(len(g_indices))
 
-            #Is the nucleotide ambiguous.
+        if 'freqs' in ssg.keys():
+            ss_freqs = ssg['freqs'][...]
+            ss_freqs_list=[]
+        
+        ok_indices = {'g':[], 'ss':[]}
+        for g_i, ss_i in it.izip(g_indices, ss_indices):
+            
+            #Is the nucleotide ambiguous?
+            #g_nt = [recode_dict[g_nts[g_i][0]],recode_dict[g_nts[g_i][1]]
             g_nt = [g_nts[g_i][0],g_nts[g_i][1]]
             if tuple(g_nt) in ambig_nts:
                 num_ambig_nts +=1
-                tot_num_non_matching_nts += 1                
+                tot_num_non_matching_nts += 1
                 continue
             
             #First check if nucleotide is sane?
@@ -1145,122 +1098,79 @@ def coordinate_datasets(val_genotype_file = None,
                 num_non_matching_nts += 1
                 tot_num_non_matching_nts += 1                
                 continue
-            
-            os_g_nt = sp.array([opp_strand_dict[g_nt[0]], opp_strand_dict[g_nt[1]]])
 
+            ss_nt = ss_nts[ss_i]
+            #Are the nucleotides the same?
             flip_nts = False
-            if not ((sp.all(g_nt == ss_nt) or sp.all(os_g_nt == ss_nt)) and (sp.all(g_nt == rg_nt) or sp.all(os_g_nt == rg_nt))):
-                if sp.all(g_nt == rg_nt) or sp.all(os_g_nt == rg_nt):
-                    flip_nts = (g_nt[1] == ss_nt[0] and g_nt[0] == ss_nt[1]) or (os_g_nt[1] == ss_nt[0] and os_g_nt[0] == ss_nt[1])
-                    #Try flipping the SS nt
-                    if flip_nts:
-                        betas[ss_i] = -betas[ss_i]                        
-                        log_odds[ss_i] = -log_odds[ss_i]    
-                        if 'freqs' in ssg.keys():
-                            ss_freqs[ss_i] = 1-ss_freqs[ss_i]
-                    else:
-                        print "Nucleotides don't match after all?: g_sid=%s, ss_sid=%s, g_i=%d, ss_i=%d, g_nt=%s, ss_nt=%s" % \
-                            (g_sids[g_i], ss_sids[ss_i], g_i, ss_i, str(g_nt), str(ss_nt))
-                        num_non_matching_nts += 1
-                        tot_num_non_matching_nts += 1
-                        continue
-
-                    
+            os_g_nt = sp.array([opp_strand_dict[g_nt[0]], opp_strand_dict[g_nt[1]]])
+            if not (sp.all(g_nt == ss_nt) or sp.all(os_g_nt == ss_nt)):
+                # Opposite strand nucleotides
+                flip_nts = (g_nt[1] == ss_nt[0] and g_nt[0] == ss_nt[1]) or (os_g_nt[1] == ss_nt[0] and os_g_nt[0] == ss_nt[1])
+                if flip_nts:
+                    betas[ss_i] = -betas[ss_i]
+                    log_odds[ss_i] = -log_odds[ss_i]
+                    if 'freqs' in ssg.keys():
+                        ss_freqs[ss_i] = 1-ss_freqs[ss_i]
                 else:
+#                     print "Nucleotides don't match after all?: g_sid=%s, ss_sid=%s, g_i=%d, ss_i=%d, g_nt=%s, ss_nt=%s" % \
+#                         (g_sids[g_i], ss_sids[ss_i], g_i, ss_i, str(g_nt), str(ss_nt))
                     num_non_matching_nts += 1
                     tot_num_non_matching_nts += 1
+                        
                     continue
-                    # Opposite strand nucleotides
-            
-           
+
             # everything seems ok.
             ok_indices['g'].append(g_i)
-            ok_indices['rg'].append(rg_i)
             ok_indices['ss'].append(ss_i)
-
             ok_nts.append(g_nt)
-#             if flip_nts:
-#                 ok_nts.append([ss_nt[1],ss_nt[0]])
-#             else:
-#                 ok_nts.append(ss_nt)                
 
-                        
-        #print '%d SNPs in LD references to be flipped.'%((len(ref_snp_directions)-sp.sum(ref_snp_directions))/2.0)
-        print '%d SNPs had ambiguous nucleotides.' % num_ambig_nts 
-        print '%d SNPs were excluded due to nucleotide issues.' % num_non_matching_nts 
-        print '%d SNPs were retained on chromosome %d.' % (len(ok_indices['g']), chrom)
+        print '%d SNPs were excluded due to ambiguous nucleotides.' % num_ambig_nts
+        print '%d SNPs were excluded due to non-matching nucleotides.' % num_non_matching_nts
 
         #Resorting by position
         positions = sp.array(chrom_d['positions'])[ok_indices['g']]
-#         order = sp.argsort(positions)
-#         sorted_positions = positions[order]
-#         assert sp.all(sorted_positions==positions), 'Perhaps something is wrong here?'
-#         ok_indices['g'] = list(sp.array(ok_indices['g'])[order])
-#         ok_indices['ss'] = list(sp.array(ok_indices['ss'])[order])
-
+        order = sp.argsort(positions)
+        ok_indices['g'] = list(sp.array(ok_indices['g'])[order])
+        ok_indices['ss'] = list(sp.array(ok_indices['ss'])[order])
+        positions = positions[order]
         
-        #Now parse SNPs ..
+        #Parse SNPs
         snp_indices = sp.array(chrom_d['snp_indices'])
         snp_indices = snp_indices[ok_indices['g']] #Pinpoint where the SNPs are in the file.
-        raw_snps,freqs = _parse_plink_snps_(genotype_file, snp_indices)
-        
-        snp_indices_ref = sp.array(chrom_d_ref['snp_indices'])
-        snp_indices_ref = snp_indices_ref[ok_indices['rg']] #Pinpoint where the SNPs are in the file.
-        raw_ref_snps, freqs_ref = _parse_plink_snps_(reference_genotype_file, snp_indices_ref)
-        
-        
-        snp_stds_ref = sp.sqrt(2*freqs_ref*(1-freqs_ref)) 
-        snp_means_ref = freqs_ref*2
+        raw_snps, freqs = _parse_plink_snps_(genotype_file, snp_indices)
+        print 'raw_snps.shape=', raw_snps.shape
 
-        snp_stds = sp.sqrt(2*freqs*(1-freqs)) 
-        snp_means = freqs*2
-        
-        betas = betas[ok_indices['ss']]  # * sp.sqrt(freqs * (1 - freqs))
-        log_odds = log_odds[ok_indices['ss']]  # * sp.sqrt(freqs * (1 - freqs))
+        snp_stds = sp.sqrt(2*freqs*(1-freqs)) #sp.std(raw_snps, 1) 
+        snp_means = freqs*2 #sp.mean(raw_snps, 1)
 
+        betas = betas[ok_indices['ss']]
+        log_odds = log_odds[ok_indices['ss']]
         ps = ssg['ps'][...][ok_indices['ss']]
-        nts = sp.array(ok_nts)#[order]
+        nts = sp.array(ok_nts)[order]
         sids = ssg['sids'][...][ok_indices['ss']]
 
-        #For debugging...
-#         g_sids = sp.array(chrom_d['sids'])[ok_indices['g']]
-#         rg_sids = sp.array(chrom_d_ref['sids'])[ok_indices['rg']]
-#         ss_sids = ssg['sids'][...][ok_indices['ss']]
-#         assert sp.all(g_sids==rg_sids) and sp.all(rg_sids==ss_sids), 'WTF?'
-        
         #Check SNP frequencies..
         if check_mafs and 'freqs' in ssg.keys():
             ss_freqs = ss_freqs[ok_indices['ss']]
             freq_discrepancy_snp = sp.absolute(ss_freqs-(1-freqs))>0.15
             if sp.any(freq_discrepancy_snp):
-                print 'Warning: %d SNPs were filtered due to high allele frequency discrepancy between summary statistics and validation sample'%sp.sum(freq_discrepancy_snp)
-#                 print freqs[freq_discrepancy_snp]
-#                 print ss_freqs[freq_discrepancy_snp]
-                 
+                print 'Warning: %d SNPs appear to have high frequency discrepancy between summary statistics and validation sample'%sp.sum(freq_discrepancy_snp)
+                print freqs[freq_discrepancy_snp]
+                print ss_freqs[freq_discrepancy_snp]
+                
                 #Filter freq_discrepancy_snps
                 ok_freq_snps = sp.negative(freq_discrepancy_snp)
                 raw_snps = raw_snps[ok_freq_snps]
                 snp_stds = snp_stds[ok_freq_snps]
                 snp_means = snp_means[ok_freq_snps]
-                raw_ref_snps = raw_ref_snps[ok_freq_snps]
-                snp_stds_ref = snp_stds_ref[ok_freq_snps]
-                snp_means_ref = snp_means_ref[ok_freq_snps]
                 freqs = freqs[ok_freq_snps]
-                freqs_ref = freqs_ref[ok_freq_snps]
                 ps = ps[ok_freq_snps]
                 positions = positions[ok_freq_snps]
                 nts = nts[ok_freq_snps]
                 sids = sids[ok_freq_snps]
                 betas = betas[ok_freq_snps]
                 log_odds = log_odds[ok_freq_snps]
-                #For debugging...
-#         if sp.any(freq_discrepancy_snp):
-#             g_sids = g_sids[ok_freq_snps]
-#             rg_sids = rg_sids[ok_freq_snps]
-#             ss_sids = ss_sids[ok_freq_snps]
-#         assert sp.all(g_sids==rg_sids) and sp.all(rg_sids==ss_sids), 'WTF?'
-
-        
+                 
         
         #Filter minor allele frequency SNPs.
         maf_filter = (freqs>min_maf)*(freqs<(1-min_maf))
@@ -1271,75 +1181,76 @@ def coordinate_datasets(val_genotype_file = None,
             raw_snps = raw_snps[maf_filter]
             snp_stds = snp_stds[maf_filter]
             snp_means = snp_means[maf_filter]
-            raw_ref_snps = raw_ref_snps[maf_filter]
-            snp_stds_ref = snp_stds_ref[maf_filter]
-            snp_means_ref = snp_means_ref[maf_filter]
             freqs = freqs[maf_filter]
-            freqs_ref = freqs_ref[maf_filter]
             ps = ps[maf_filter]
             positions = positions[maf_filter]
             nts = nts[maf_filter]
             sids = sids[maf_filter]
             betas = betas[maf_filter]
             log_odds = log_odds[maf_filter]
-#         if sp.sum(maf_filter)<n_snps:
-#             g_sids = g_sids[maf_filter]
-#             rg_sids = rg_sids[maf_filter]
-#             ss_sids = ss_sids[maf_filter]
-#         assert sp.all(g_sids==rg_sids) and sp.all(rg_sids==ss_sids), 'WTF?'
-        
-        
-        
-        maf_adj_prs = sp.dot(log_odds, raw_snps)
-        if has_phenotype:
-            maf_adj_corr = sp.corrcoef(Y, maf_adj_prs)[0, 1]
-            print 'Log odds, per genotype PRS correlation w phenotypes for chromosome %d was %0.4f' % (chrom, maf_adj_corr)
+            
+            
+            print '%d SNPs with MAF < %0.3f were filtered'%(n_snps-maf_filter_sum,min_maf)
 
-        genetic_map = [] 
+        print '%d SNPs were retained on chromosome %d.' % (maf_filter_sum, chrom)
+        
+        rb_prs = sp.dot(sp.transpose(raw_snps), log_odds)
+        if has_phenotype:
+            print 'Normalizing SNPs'
+            snp_means.shape = (len(raw_snps),1)
+            snp_stds.shape = (len(raw_snps),1)
+            snps = (raw_snps - snp_means) / snp_stds
+            assert snps.shape==raw_snps.shape, 'Aha!'
+            snp_stds = snp_stds.flatten()
+            snp_means = snp_means.flatten()
+            prs = sp.dot(sp.transpose(snps), betas)
+            corr = sp.corrcoef(Y, prs)[0, 1]
+            corr_list.append(corr)
+            print 'PRS correlation for chromosome %d was %0.4f' % (chrom, corr)
+            rb_corr = sp.corrcoef(Y, rb_prs)[0, 1]
+            rb_corr_list.append(rb_corr)
+            print 'Raw effect sizes PRS correlation for chromosome %d was %0.4f' % (chrom, rb_corr)
+        
+        sid_set = set(sids)
         if genetic_map_dir is not None:
+            genetic_map = [] 
             with gzip.open(genetic_map_dir+'chr%d.interpolated_genetic_map.gz'%chrom) as f:
                 for line in f:
                     l = line.split()
                     if l[0] in sid_set:
                         genetic_map.append(l[0])
         
-        
         print 'Now storing coordinated data to HDF5 file.'
         ofg = cord_data_g.create_group('chrom_%d' % chrom)
-        ofg.create_dataset('raw_snps_val', data=raw_snps, compression='lzf')
-        ofg.create_dataset('snp_stds_val', data=snp_stds)
-        ofg.create_dataset('snp_means_val', data=snp_means)
-        ofg.create_dataset('freqs_val', data=freqs)
-        ofg.create_dataset('raw_snps_ref', data=raw_ref_snps, compression='lzf')
-        ofg.create_dataset('snp_stds_ref', data=snp_stds_ref)
-        ofg.create_dataset('snp_means_ref', data=snp_means_ref)
-        ofg.create_dataset('freqs_ref', data=freqs_ref)
-        ofg.create_dataset('nts', data=nts)
+        ofg.create_dataset('raw_snps_ref', data=raw_snps, compression='lzf')
+        ofg.create_dataset('snp_stds_ref', data=snp_stds)
+        ofg.create_dataset('snp_means_ref', data=snp_means)
+        ofg.create_dataset('freqs_ref', data=freqs)
         ofg.create_dataset('ps', data=ps)
         ofg.create_dataset('positions', data=positions)
+        ofg.create_dataset('nts', data=nts)
         ofg.create_dataset('sids', data=sids)
         if genetic_map_dir is not None:
             ofg.create_dataset('genetic_map', data=genetic_map)
+#         print 'Sum of squared effect sizes:', sp.sum(betas ** 2)
+#         print 'Sum of squared log odds:', sp.sum(log_odds ** 2)
         ofg.create_dataset('betas', data=betas)
         ofg.create_dataset('log_odds', data=log_odds)
-        ofg.create_dataset('log_odds_prs', data=maf_adj_prs)
-#         print 'Sum betas', sp.sum(betas ** 2)
-        #ofg.create_dataset('prs', data=prs)
-        
-        
-        #risk_scores += prs
-        maf_adj_risk_scores += maf_adj_prs
+        ofg.create_dataset('log_odds_prs', data=rb_prs)
+        if has_phenotype:
+            risk_scores += prs
+        rb_risk_scores += rb_prs
         num_common_snps += len(betas)
-        
-    # Now calculate the prediction r^2
+
     if has_phenotype:
-        maf_adj_corr = sp.corrcoef(Y, maf_adj_risk_scores)[0, 1]
-        #print 'PRS correlation for the whole genome was %0.4f (r^2=%0.4f)' % (corr, corr ** 2)
-        print 'Log odds, per PRS correlation for the whole genome was %0.4f (r^2=%0.4f)' % (maf_adj_corr, maf_adj_corr ** 2)
-    print 'Overall nucleotide concordance counts: g_rg: %d, g_ss: %d, rg_ss: %d'%(tot_g_rg_nt_concord_count, tot_g_ss_nt_concord_count, tot_rg_ss_nt_concord_count)
+        # Now calculate the prediction r^2
+        corr = sp.corrcoef(Y, risk_scores)[0, 1]
+        rb_corr = sp.corrcoef(Y, rb_risk_scores)[0, 1]
+        print 'PRS R2 prediction accuracy for the whole genome was %0.4f (corr=%0.4f)' % (corr ** 2,corr)
+        print 'Log-odds (effects) PRS R2 prediction accuracy for the whole genome was %0.4f (corr=%0.4f)' % (rb_corr ** 2, rb_corr)
     print 'There were %d SNPs in common' % num_common_snps
-    print 'In all, %d SNPs were excluded due to nucleotide issues.' % tot_num_non_matching_nts 
-    print 'Done!'
+    print 'In all, %d SNPs were excluded due to nucleotide issues.' % tot_num_non_matching_nts
+    print 'Done coordinating genotypes and summary statistics datasets.'
 
 
 
