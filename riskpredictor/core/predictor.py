@@ -31,6 +31,19 @@ from scipy import stats
 import random
 
 
+
+def parse_BMI_HEIGHT():
+    bmi_file = 'SNP_gwas_mc_merge_nogc.tbl.uniq'
+    height_file = 'GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
+    KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes'
+    comb_hdf5_file = 'HEIGHT_BMI.hdf5'
+    bimfile = '/home/bjarni/TheHonestGene/faststorage/wayf.bim'
+    parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
+
+
+
+
+                   
 log = logging.getLogger(__name__)
 
 
@@ -90,14 +103,6 @@ def get_sid_pos_map(sids, KGenomes_prefix):
             sid_map[sid]={'pos':pos, 'chrom':chrom_i, 'eur_maf':eur_maf}
     return sid_map
 
-def parse_BMI_HEIGHT():
-    bmi_file = 'SNP_gwas_mc_merge_nogc.tbl.uniq'
-    height_file = 'GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
-    KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes'
-    comb_hdf5_file = 'HEIGHT_BMI.hdf5'
-    bimfile = '/home/bjarni/TheHonestGene/faststorage/wayf.bim'
-    
-    parse_sum_stats(bmi_file,KGpath=KGpath,ss_id='BMI',bimfile=)
 
 def parse_sum_stats(filename,
                     comb_hdf5_file,
