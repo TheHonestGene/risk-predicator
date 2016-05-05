@@ -39,9 +39,9 @@ def parse_BMI_HEIGHT():
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes/'
     comb_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
     bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'
-#     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
+    parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile)
 
-    parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath,bimfile=bimfile)
+#     parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath,bimfile=bimfile)
 
 
 
