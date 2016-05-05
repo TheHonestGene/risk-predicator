@@ -54,7 +54,7 @@ def parse_BMI_HEIGHT():
     ig_h5f = h5py.File(hg_indiv_genot_file)
     ok_sids = []
     for chrom in ig_h5f.keys():
-        ok_sids.extend(ig_h5f[chrom]['sids'])
+        ok_sids.extend(ig_h5f[chrom]['sids'][...])
     parse_sum_stats(height_file,comb_hdf5_file,'height',KGpath, bimfile=bimfile, ok_sids=ok_sids)
     parse_sum_stats(bmi_file,comb_hdf5_file,'BMI',KGpath,bimfile=bimfile, ok_sids=ok_sids)
 
