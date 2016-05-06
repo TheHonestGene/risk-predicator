@@ -39,6 +39,7 @@ import h5py
 import scipy as sp
 from scipy import stats
 import random
+import gzip
 
 ambig_nts = set([('A', 'T'), ('T', 'A'), ('G', 'C'), ('C', 'G')])
 opp_strand_dict = {'A':'T', 'G':'C', 'T':'A', 'C':'G'}
@@ -1102,7 +1103,7 @@ def coordinate_LDpred_data(genotype_file=None,
         snp_indices = chrom_d['snp_indices']
         ss_nts = ssg['nts'][...]
         betas = ssg['zs'][...]
-        log_odds = betas ssg['log_odds'][...]
+        log_odds =  ssg['raw_betas'][...]
         assert not sp.any(sp.isnan(betas)), 'WTF?'
         assert not sp.any(sp.isinf(betas)), 'WTF?'
 
@@ -1111,8 +1112,8 @@ def coordinate_LDpred_data(genotype_file=None,
         ok_nts = []
         print 'Found %d SNPs present in both datasets'%(len(g_indices))
 
-        if 'freqs' in ssg.keys():
-            ss_freqs = ssg['freqs'][...]
+        if 'eur_mafs' in ssg.keys():
+            ss_freqs = ssg['eur_mafs'][...]
 #             ss_freqs_list=[]
         
         ok_indices = {'g':[], 'ss':[]}
@@ -1142,7 +1143,7 @@ def coordinate_LDpred_data(genotype_file=None,
                 if flip_nts:
                     betas[ss_i] = -betas[ss_i]
                     log_odds[ss_i] = -log_odds[ss_i]
-                    if 'freqs' in ssg.keys():
+                    if 'eur_mafs' in ssg.keys():
                         ss_freqs[ss_i] = 1-ss_freqs[ss_i]
                 else:
 #                     print "Nucleotides don't match after all?: g_sid=%s, ss_sid=%s, g_i=%d, ss_i=%d, g_nt=%s, ss_nt=%s" % \
@@ -1183,7 +1184,7 @@ def coordinate_LDpred_data(genotype_file=None,
         sids = ssg['sids'][...][ok_indices['ss']]
 
         #Check SNP frequencies..
-        if check_mafs and 'freqs' in ssg.keys():
+        if check_mafs and 'eur_mafs' in ssg.keys():
             ss_freqs = ss_freqs[ok_indices['ss']]
             freq_discrepancy_snp = sp.absolute(ss_freqs-(1-freqs))>0.15
             if sp.any(freq_discrepancy_snp):
