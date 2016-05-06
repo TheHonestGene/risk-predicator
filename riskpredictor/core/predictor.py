@@ -1080,14 +1080,15 @@ def coordinate_LDpred_data(genotype_file=None,
     corr_list = []
     rb_corr_list = []
 
+    coord_h5f = h5py.File(coord_hdf5_file)
     if has_phenotype:
-        coord_hdf5_file.create_dataset('y', data=Y)
+        coord_h5f.create_dataset('y', data=Y)
     
-    coord_hdf5_file.create_dataset('fids', data=fids)
-    coord_hdf5_file.create_dataset('iids', data=iids)
+    coord_h5f.create_dataset('fids', data=fids)
+    coord_h5f.create_dataset('iids', data=iids)
     ss_h5f = h5py.File(ss_file)
     ssf = ss_h5f[ss_id]
-    cord_data_g = coord_hdf5_file.create_group('cord_data')
+    cord_data_g = coord_h5f.create_group('cord_data')
 
     #Figure out chromosomes and positions by looking at SNPs.  
     loci = plinkf.get_loci()
