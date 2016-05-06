@@ -76,6 +76,11 @@ def coordinate_BMI_HEIGHT():
                            ss_id = 'height',
                            min_maf =0.01)
                    
+    coordinate_LDpred_data(genotype_file=ld_ref_prefix,
+                           coord_hdf5_file=coord_bmi_file,
+                           ss_file=ss_hdf5_file,
+                           ss_id = 'BMI',
+                           min_maf =0.01)
 
 
 def _parse_plink_snps_(genotype_file, snp_indices):
