@@ -76,6 +76,46 @@ def coordinate_BMI_HEIGHT():
                            ss_id = 'height',
                            min_maf =0.01)
                    
+
+
+def _parse_plink_snps_(genotype_file, snp_indices):
+    plinkf = plinkfile.PlinkFile(genotype_file)
+    samples = plinkf.get_samples()
+    num_individs = len(samples)
+    num_snps = len(snp_indices)
+    raw_snps = sp.empty((num_snps,num_individs),dtype='int8')
+    #If these indices are not in order then we place them in the right place while parsing SNPs.
+    snp_order = sp.argsort(snp_indices)
+    ordered_snp_indices = list(snp_indices[snp_order])
+    ordered_snp_indices.reverse()
+    print 'Iterating over file to load SNPs'
+    snp_i = 0
+    next_i = ordered_snp_indices.pop()
+    line_i = 0
+    max_i = ordered_snp_indices[0]
+    while line_i <= max_i:
+        if line_i < next_i:
+            plinkf.next()
+        elif line_i==next_i:
+            line = plinkf.next()
+            snp = sp.array(line, dtype='int8')
+            bin_counts = line.allele_counts()
+            if bin_counts[-1]>0:
+                mode_v = sp.argmax(bin_counts[:2])
+                snp[snp==3] = mode_v
+            s_i = snp_order[snp_i]
+            raw_snps[s_i]=snp
+            if line_i < max_i:
+                next_i = ordered_snp_indices.pop()
+            snp_i+=1
+        line_i +=1
+    plinkf.close()
+    assert snp_i==len(raw_snps), 'Failed to parse SNPs?'
+    num_indivs = len(raw_snps[0])
+    freqs = sp.sum(raw_snps,1, dtype='float32')/(2*float(num_indivs))
+    return raw_snps, freqs
+
+
                    
 def predict(genotype_file,trait,**kwargs):
     log_extra = kwargs.get('log_extra',{'progress':0})
@@ -1061,13 +1101,7 @@ def coordinate_LDpred_data(genotype_file=None,
         chrom_d = chr_dict[chr_str]
         try:
             ssg = ssf['chrom_%d' % chrom]
-#             eur_mafs                 Dataset {34153}
-#             nts                      Dataset {34153, 2}
-#             positions                Dataset {34153}
-#             ps                       Dataset {34153}
-#             sids                     Dataset {34153}
-#             weights                  Dataset {34153}
-#             zs                       Dataset {34153}
+
         except Exception, err_str:
             print err_str
             print 'Did not find chromsome in SS dataset.'
