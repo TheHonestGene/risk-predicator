@@ -257,7 +257,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -265,7 +265,6 @@ def parse_sum_stats(filename,
                     pval = float(l[7])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = -sp.log(float(l[5]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -274,8 +273,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i
@@ -291,7 +291,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -299,7 +299,6 @@ def parse_sum_stats(filename,
                     pval = float(l[8])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = -sp.log(float(l[6]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[2], l[3]]
                     else:
@@ -308,8 +307,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i
@@ -325,7 +325,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -333,7 +333,6 @@ def parse_sum_stats(filename,
                     pval = float(l[6])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[5])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -342,8 +341,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i
@@ -359,7 +359,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -367,7 +367,6 @@ def parse_sum_stats(filename,
                     pval = float(l[7])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = -sp.log(float(l[5]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -376,8 +375,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i
@@ -393,7 +393,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -401,7 +401,6 @@ def parse_sum_stats(filename,
                     pval = float(l[7])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[5])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -410,8 +409,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i
@@ -427,7 +427,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -435,7 +435,6 @@ def parse_sum_stats(filename,
                     pval = float(l[6])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[4])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[1], l[2]]
                     else:
@@ -444,8 +443,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i             
@@ -460,7 +460,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -468,7 +468,6 @@ def parse_sum_stats(filename,
                     pval = float(l[6])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = sp.log(float(l[4]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[1], l[2]]
                     else:
@@ -477,8 +476,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i             
@@ -493,7 +493,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[],'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -501,7 +501,6 @@ def parse_sum_stats(filename,
                     pval = float(l[8])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[8])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -510,8 +509,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i             
@@ -527,7 +527,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -535,7 +535,6 @@ def parse_sum_stats(filename,
                     pval = float(l[11])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = -sp.log(float(l[6]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -544,8 +543,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i             
@@ -561,7 +561,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -569,7 +569,6 @@ def parse_sum_stats(filename,
                     pval = float(l[5])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[4])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [lc_2_cap_map[l[1]], lc_2_cap_map[l[2]]]
                     else:
@@ -578,8 +577,10 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
-                    chrom_dict[chrom]['weights'].append(int(float(l[3])))
+                    weight = int(float(l[3]))
+                    chrom_dict[chrom]['weights'].append(weight)
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                 if line_i%100000==0:
                     print line_i                            
         
@@ -594,7 +595,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -602,7 +603,6 @@ def parse_sum_stats(filename,
                     pval = float(l[6])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[4])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[1], l[2]]
                     else:
@@ -611,8 +611,10 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
-                    chrom_dict[chrom]['weights'].append(int(float(l[7])))
+                    weight = int(float(l[7]))
+                    chrom_dict[chrom]['weights'].append(weight)
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                 if line_i%100000==0:
                     print line_i                                     
         elif header==headers['GIANT1c']:
@@ -626,7 +628,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -643,8 +645,10 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
-                    chrom_dict[chrom]['weights'].append(int(float(l[9])))
+                    weight = int(float(l[9]))
+                    chrom_dict[chrom]['weights'].append(weight)
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                 if line_i%100000==0:
                     print line_i   
         elif header==headers['MAGIC']:
@@ -658,7 +662,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -666,7 +670,6 @@ def parse_sum_stats(filename,
                     pval = float(l[6])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[4])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [lc_2_cap_map[l[1]], lc_2_cap_map[l[2]]]
                     else:
@@ -675,8 +678,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -692,7 +696,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -700,7 +704,6 @@ def parse_sum_stats(filename,
                     pval = float(l[5])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[7])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[2], l[3]]
                     else:
@@ -709,8 +712,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = float(l[9]) +float(l[10])
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -725,7 +729,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -733,7 +737,6 @@ def parse_sum_stats(filename,
                     pval = float(l[5])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = sp.log(float(l[6]))
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -742,8 +745,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = float(l[9]) +float(l[10])
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -758,7 +762,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -766,7 +770,6 @@ def parse_sum_stats(filename,
                     pval = float(l[10])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[8])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -775,8 +778,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -791,7 +795,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -808,8 +812,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -824,7 +829,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -832,7 +837,6 @@ def parse_sum_stats(filename,
                     pval = float(l[11])
                     chrom_dict[chrom]['ps'].append(pval)
                     raw_beta = float(l[6])
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -841,10 +845,11 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)
-#                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
 #                     weight = (z/beta)**2
-                    weight = float(l[16])  # Number of studies used.
+#                     weight = float(l[16])  # Number of studies used.
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -864,14 +869,13 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
                     chrom_dict[chrom]['eur_maf'].append(eur_maf)
                     pval = float(l[8])
                     chrom_dict[chrom]['ps'].append(pval)
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -880,8 +884,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -900,13 +905,12 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
                     chrom_dict[chrom]['eur_maf'].append(eur_maf)
                     chrom_dict[chrom]['ps'].append(pval)
-                    chrom_dict[chrom]['raw_betas'].append(raw_beta)                                    
                     if random.random()>0.5:
                         nt = [l[3], l[4]]
                     else:
@@ -915,8 +919,9 @@ def parse_sum_stats(filename,
     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sp.sign(raw_beta) * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = z**2/((raw_beta**2)*2*eur_maf*(1-eur_maf))
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(raw_beta/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -936,7 +941,7 @@ def parse_sum_stats(filename,
                     chrom = d['chrom']
                     eur_maf = d['eur_maf']
                     if not chrom in chrom_dict.keys():
-                        chrom_dict[chrom] = {'ps':[], 'zs':[], 'nts': [], 'sids': [], 
+                        chrom_dict[chrom] = {'ps':[], 'betas':[], 'nts': [], 'sids': [], 
                                              'positions': [], 'eur_maf':[], 'weights':[], 'raw_betas':[]}
                     chrom_dict[chrom]['sids'].append(sid)
                     chrom_dict[chrom]['positions'].append(pos)
@@ -955,9 +960,9 @@ def parse_sum_stats(filename,
                     
                     chrom_dict[chrom]['nts'].append(nt)                
                     z = sign * stats.norm.ppf(pval/2.0)
-                    chrom_dict[chrom]['zs'].append(z)     
                     weight = float(l[17])
-                    chrom_dict[chrom]['raw_betas'].append(z)                                    
+                    chrom_dict[chrom]['betas'].append(z/sp.sqrt(weight))     
+                    chrom_dict[chrom]['raw_betas'].append(z/sp.sqrt(weight))                                    
                     chrom_dict[chrom]['weights'].append(weight)
                 if line_i%100000==0:
                     print line_i   
@@ -965,7 +970,7 @@ def parse_sum_stats(filename,
         else:
             raise Exception('Wrong or unknown file format')
     
-        assert sp.all(sp.isreal(chrom_dict[1]['zs'])), 'WTF?'
+        assert sp.all(sp.isreal(chrom_dict[1]['betas'])), 'WTF?'
 
     print 'SS file loaded, now sorting and storing in HDF5 file.'
     assert not ss_id in h5f.keys(), 'Summary stats with this name are already in the HDF5 file?'
@@ -974,19 +979,19 @@ def parse_sum_stats(filename,
     for chrom in chrom_dict.keys():
         print 'Parsed summary stats for %d SNPs on chromosome %d'%(len(chrom_dict[chrom]['positions']),chrom)
         sl = zip(chrom_dict[chrom]['positions'], chrom_dict[chrom]['sids'], chrom_dict[chrom]['nts'],
-                 chrom_dict[chrom]['ps'], chrom_dict[chrom]['zs'], chrom_dict[chrom]['raw_betas'], 
+                 chrom_dict[chrom]['ps'], chrom_dict[chrom]['betas'], chrom_dict[chrom]['raw_betas'], 
                  chrom_dict[chrom]['eur_maf'], chrom_dict[chrom]['weights'])
         sl.sort()
         ps = []
         nts = []
         sids = []
         positions = []
-        zs = []
+        betas = []
         raw_betas = []
         eur_mafs = []
         weights = []
         prev_pos = -1
-        for pos, sid, nt, p, z, raw_beta, eur_maf, weight in sl:
+        for pos, sid, nt, p, beta, raw_beta, eur_maf, weight in sl:
             if pos == prev_pos:
                 print 'duplicated position %d' % pos
                 continue
@@ -996,7 +1001,7 @@ def parse_sum_stats(filename,
             nts.append(nt)
             sids.append(sid)
             positions.append(pos)
-            zs.append(z)
+            betas.append(beta)
             raw_betas.append(raw_beta)
             eur_mafs.append(eur_maf)
             weights.append(weight)
@@ -1006,7 +1011,7 @@ def parse_sum_stats(filename,
         g.create_dataset('sids', data=sids)
         g.create_dataset('eur_mafs', data=eur_mafs)
         g.create_dataset('positions', data=positions)
-        g.create_dataset('zs', data=zs)
+        g.create_dataset('betas', data=betas)
         g.create_dataset('raw_betas', data=raw_betas)
         g.create_dataset('weights', data=weights)
         num_snps +=len(sids)
@@ -1142,7 +1147,7 @@ def coordinate_LDpred_data(genotype_file=None,
         g_nts = chrom_d['nts']
         snp_indices = chrom_d['snp_indices']
         ss_nts = ssg['nts'][...]
-        betas = ssg['zs'][...]
+        betas = ssg['betas'][...]
         log_odds =  ssg['raw_betas'][...]
         assert not sp.any(sp.isnan(betas)), 'WTF?'
         assert not sp.any(sp.isinf(betas)), 'WTF?'
