@@ -67,7 +67,7 @@ def parse_BMI_HEIGHT():
 def coordinate_BMI_HEIGHT():
     ss_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
     coord_height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF407_HEIGHT.hdf5'
-    coord_bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF_BMI.hdf5'
+    coord_bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF407_BMI.hdf5'
     ld_ref_prefix = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf_407'  #This is the LD reference and validation data SNP file.
 
     coordinate_LDpred_data(genotype_file=ld_ref_prefix,
