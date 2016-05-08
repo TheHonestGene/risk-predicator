@@ -17,13 +17,13 @@ Risk prediction pre-calculation pipeline:
          - Run LDpred using the coordinated file.  
      4. Validate prediction using validation data
          - Run LDpred to get validation.
+         - Estimate sex effect, report in text?
+         - Store distribution.
      5. Coordinate SNP weights directions with a HonestGene individual genotype (e.g. 23andme v4)
          - missing weights for HG IG SNPs will be set to 0.
      6. Validate using 1K genomes.
-         
-     3. Validate using the danish High school students
-     4. Set up prediction for a 23andme genotype, and store weights in a trait_file
-         - 
+
+     7. Predict a 23andme genotype.
     
 When the resulting SNP weight files for each trait are available, we can use them to obtain the polygenic scores for each 
 trait relatively easily using 
