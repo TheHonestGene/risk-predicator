@@ -54,7 +54,7 @@ def parse_BMI_HEIGHT():
     height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt'
     KGpath = '/home/bjarni/TheHonestGene/faststorage/1Kgenomes/'
     comb_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
-    bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf.bim'  #This is the LD reference and validation data SNP file.
+    bimfile = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf_407.bim'  #This is the LD reference and validation data SNP file.
     hg_indiv_genot_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/imputed.hdf5'  #the individual genotype example
     ig_h5f = h5py.File(hg_indiv_genot_file)
     ok_sids = []
@@ -66,9 +66,9 @@ def parse_BMI_HEIGHT():
 
 def coordinate_BMI_HEIGHT():
     ss_hdf5_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/HEIGHT_BMI.hdf5'
-    coord_height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF_HEIGHT.hdf5'
+    coord_height_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF407_HEIGHT.hdf5'
     coord_bmi_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/LDpred_coord_WAYF_BMI.hdf5'
-    ld_ref_prefix = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf'  #This is the LD reference and validation data SNP file.
+    ld_ref_prefix = '/home/bjarni/TheHonestGene/faststorage/prediction_data/wayf_407'  #This is the LD reference and validation data SNP file.
 
     coordinate_LDpred_data(genotype_file=ld_ref_prefix,
                            coord_hdf5_file=coord_height_file,
