@@ -1350,9 +1350,9 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         nt2 = row['nt2']
         nt1_os = opp_strand_dict[nt1]
         nt2_os = opp_strand_dict[nt2]
-        if sp.all([nt2,nt1]==nts) or sp.all([nt2_os,nt1])==nts or sp.all([nt2,nt1_os])==nts or sp.all([nt2_os,nt1_os])==nts:
+        if sp.all([nt2,nt1]==nts) or sp.all([nt2_os,nt1]==nts) or sp.all([nt2,nt1_os]==nts) or sp.all([nt2_os,nt1_os]==nts):
             ldpred_beta = -ldpred_beta
-        elif not (sp.all([nt1,nt2]==nts) or sp.all([nt1_os,nt2])==nts or sp.all([nt1,nt2_os])==nts or sp.all([nt1_os,nt2_os])==nts):
+        elif not (sp.all([nt1,nt2]==nts) or sp.all([nt1_os,nt2]==nts) or sp.all([nt1,nt2_os]==nts) or sp.all([nt1_os,nt2_os]==nts)):
             raise Exception('Somethings wrong with the nucelotides.')
         d[sid] = {'pos':pos,'nts':nts,'ldpred_beta':ldpred_beta}
 
