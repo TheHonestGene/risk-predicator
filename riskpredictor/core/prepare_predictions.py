@@ -1314,7 +1314,7 @@ def coordinate_LDpred_data(genotype_file=None,
 
 
 
-def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file):
+def c(indiv_genot, SNP_weights_file, out_SNP_weights_h5file):
     """
     Coordinate SNPs (make sure that directions are ok), and store coordinated SNP weights to file.
     """
@@ -1346,9 +1346,9 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         assert nts is not None, 'Arrrgh, SNP weight coordination failed!'
         nt1 = row['nt1']
         nt2 = row['nt2']
-        if [nt2,nt1]==nts:
+        if sp.all([nt2,nt1]==nts):
             ldpred_beta = -ldpred_beta
-        elif not [nt1,nt2]==nts:
+        elif not sp.all([nt1,nt2]==nts):
             raise Exception('Somethings wrong with the nucelotides.')
         d[sid] = {'pos':pos,'nts':nts,'ldpred_beta':ldpred_beta}
 
