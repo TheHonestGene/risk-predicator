@@ -1342,7 +1342,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         chr_str = 'Chr%d'%int(row['chrom'][6:])
         d = chrom_dict[chr_str]
         sid = row['sid']
-        pos = row['pos']
+#         pos = row['pos']
         ldpred_beta = row['ldpred_beta'] 
         nts = snp_nt_dict.get(sid,None) 
         assert nts is not None, 'Arrrgh, SNP weight coordination failed!'
@@ -1354,7 +1354,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
             ldpred_beta = -ldpred_beta
         elif not (sp.all([nt1,nt2]==nts) or sp.all([nt1_os,nt2]==nts) or sp.all([nt1,nt2_os]==nts) or sp.all([nt1_os,nt2_os]==nts)):
             raise Exception('Somethings wrong with the nucelotides.')
-        d[sid] = {'pos':pos,'nts':nts,'ldpred_beta':ldpred_beta}
+        d[sid] = {'ldpred_beta':ldpred_beta}
 
     #Now fill new coordinated file, using the same SNP order as the individual genotype!
     oh5f = h5py.File(out_SNP_weights_h5file)
@@ -1366,12 +1366,15 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         ldpred_betas = []
         sids = []
         nts = []
-        for sid in h5_ig[chr_str]['sids'][...]:
-            sid_dict = d[sid]
+        for sid, pos, nts in it.izip(h5_ig[chr_str]['sids'][...],h5_ig[chr_str]['positions'][...],h5_ig[chr_str]['nts'][...]):
+            sid_dict = d.get(sid,None)
+            if sid_dict is None:
+                ldpred_betas.append(0)
+            else:
+                ldpred_betas.append(sid_dict['ldpred_beta'])
             sids.append(sid)
-            positions.append(sid_dict['pos'])
-            ldpred_betas.append(sid_dict['ldpred_beta'])
-            nts.append(sid_dict['nts'])
+            positions.append(pos)
+            nts.append(nts)
         
         chr_g = oh5f.create_group(chr_str)
         chr_g.create_dataset('sids',data=sids)
