@@ -1337,6 +1337,8 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         chr_str = 'Chr%d'%chrom_i
         chrom_dict[chr_str] = {'sids_dict':{}}
     for index, row in snp_weights_data.iterrows():
+        if index%100000==0: 
+            print index
         chr_str = 'Chr%d'%int(row['chrom'][6:])
         d = chrom_dict[chr_str]
         sid = row['sid']
@@ -1346,9 +1348,11 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         assert nts is not None, 'Arrrgh, SNP weight coordination failed!'
         nt1 = row['nt1']
         nt2 = row['nt2']
-        if sp.all([nt2,nt1]==nts):
+        nt1_os = opp_strand_dict[nt1]
+        nt2_os = opp_strand_dict[nt2]
+        if sp.all([nt2,nt1]==nts) or sp.all([nt2_os,nt1])==nts or sp.all([nt2,nt1_os])==nts or sp.all([nt2_os,nt1_os])==nts:
             ldpred_beta = -ldpred_beta
-        elif not sp.all([nt1,nt2]==nts):
+        elif not (sp.all([nt1,nt2]==nts) or sp.all([nt1_os,nt2])==nts or sp.all([nt1,nt2_os])==nts or sp.all([nt1_os,nt2_os])==nts):
             raise Exception('Somethings wrong with the nucelotides.')
         d[sid] = {'pos':pos,'nts':nts,'ldpred_beta':ldpred_beta}
 
@@ -1356,6 +1360,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
     oh5f = h5py.File(out_SNP_weights_h5file)
     for chrom_i in range(1,23):
         chr_str = 'Chr%d'%chrom_i
+        print chr_str
         d = chrom_dict[chr_str]
         positions = []
         ldpred_betas = []
