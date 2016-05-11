@@ -1365,7 +1365,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         positions = []
         ldpred_betas = []
         sids = []
-        nts = []
+        nts_list = []
         for sid, pos, nts in it.izip(h5_ig[chr_str]['sids'][...],h5_ig[chr_str]['positions'][...],h5_ig[chr_str]['nts'][...]):
             sid_dict = d.get(sid,None)
             if sid_dict is None:
@@ -1374,11 +1374,11 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
                 ldpred_betas.append(sid_dict['ldpred_beta'])
             sids.append(sid)
             positions.append(pos)
-            nts.append(nts)
+            nts_list.append(nts)
         
         chr_g = oh5f.create_group(chr_str)
         chr_g.create_dataset('sids',data=sids)
-        chr_g.create_dataset('nts',data=nts)
+        chr_g.create_dataset('nts',data=nts_list)
         chr_g.create_dataset('positions',data=positions)
         chr_g.create_dataset('ldpred_betas',data=ldpred_betas)
     h5_ig.close()
