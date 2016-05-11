@@ -1314,7 +1314,7 @@ def coordinate_LDpred_data(genotype_file=None,
 
 
 
-def c(indiv_genot, SNP_weights_file, out_SNP_weights_h5file):
+def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file):
     """
     Coordinate SNPs (make sure that directions are ok), and store coordinated SNP weights to file.
     """
