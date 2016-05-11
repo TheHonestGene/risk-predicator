@@ -20,9 +20,6 @@ Risk prediction pre-calculation pipeline:
      5. Coordinate SNP weights directions with a HonestGene individual genotype (e.g. 23andme v4) and estimate cov. weights
          - missing weights for HG IG SNPs will be set to 0.
          - Use the gen_weight_files function.
-     6. Validate using 1K genomes.
-         - Uemit? 
-     7. Predict a 23andme genotype.
     
 When the resulting SNP weight files for each trait are available, we can use them to obtain the polygenic scores for each 
 trait relatively easily using 
