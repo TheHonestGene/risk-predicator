@@ -31,7 +31,7 @@ def predict(indiv_genot,trait_folder,
     sex: 1 for male, and 2 for female
     """
     indiv_genot = os.path.abspath(indiv_genot)
-#     trait_folder = os.path.abspath(trait_folder)
+    trait_folder = os.path.abspath(trait_folder)
     snp_weights_file = '%s/snp_weights.hdf5' % trait_folder
     prs_weigths_file = '%s/prs_weights.hdf5' % trait_folder
     print snp_weights_file
@@ -99,7 +99,7 @@ def validate_predictions(K=10):
             imputor.impute(args)
         
         
-        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/height')
+        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/height/23andme_v4')
         pred_phens.append(pred_phen)
     
     print sp.corrcoef(pred_phen,pred_res['true_phens'])
