@@ -67,7 +67,7 @@ def predict(indiv_genot,trait_folder,
 
 
 
-def validate_predictions(K=10):
+def validate_predictions(K=1):
     """
     Use the 23andme genomes to validate prediction, by pulling them through the pipeline 
     """
