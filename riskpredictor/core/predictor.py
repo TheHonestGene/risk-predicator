@@ -83,12 +83,12 @@ def validate_predictions(K=10):
             args = {'input_file':input_file, 'output_file':output_file}
             imputor.parse_genotype(args)
         input_file = output_file
-#         output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_converted.hdf5'%indiv_id
-#         if not os.path.isfile(output_file):
-#             args = {'input_file':input_file, 'output_file':output_file, 
-#                     'nt_map_file':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/NT_DATA/23andme_v4_nt_map.pickled.new'}
-#             imputor.convert_genotype_nt_key_encoding(args)
-#         input_file = output_file
+        output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_converted.hdf5'%indiv_id
+        if not os.path.isfile(output_file):
+            args = {'input_file':input_file, 'output_file':output_file, 
+                    'nt_map_file':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/NT_DATA/23andme_v4_nt_map.pickled.new'}
+            imputor.convert(args)
+        input_file = output_file
         output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_imputed.hdf5'%indiv_id
         if not os.path.isfile(output_file):
             args = {'genotype_file':input_file, 'output_file':output_file, 
