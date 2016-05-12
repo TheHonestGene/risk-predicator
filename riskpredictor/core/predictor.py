@@ -18,6 +18,8 @@ import random
 import gzip
 import os
 log = logging.getLogger(__name__)
+import imputor
+import sys
 
 
                    
@@ -55,7 +57,7 @@ def predict(indiv_genot,trait_folder,
         weights = pwh5f['sex_adj']
         pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs + weights['sex'][...]*sex
     else:
-        log.info('Calculating final prediction score for unknown gender')
+        log.info('Calculating final prediction score without gender information')
         weights = pwh5f['unadjusted']
         pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs
     log.info('Finished prediction',extra=log_extra)
@@ -63,3 +65,44 @@ def predict(indiv_genot,trait_folder,
 
 
 
+
+def validate_predictions(K=10):
+    """
+    Use the 23andme genomes to validate prediction, by pulling them through the pipeline 
+    """
+    #Pull out K individuals with phenotypes
+    pred_res = pandas.read_csv('/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/23andme_v4_height_prs.txt', 
+                               skipinitialspace=True)
+    pred_res = pred_res[:K]
+    pred_phens = []
+    for indiv_id in pred_res['IID']:
+        input_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genome/%s.genome'%indiv_id
+        assert sys.path.isfile(input_file), 'Unable to find file: %s'%input_file
+        output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome.hdf5'%indiv_id
+        if not sys.path.isfile(output_file):
+            args = {'input_file':input_file, 'output_file':output_file}
+            imputor.parse_genotype(args)
+        input_file = output_file
+        output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_converted.hdf5'%indiv_id
+        if not sys.path.isfile(output_file):
+            args = {'input_file':input_file, 'output_file':output_file, 
+                    'nt_map_file':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/NT_DATA/23andme_v4_nt_map.pickled.new'}
+            imputor.convert_genotype_nt_key_encoding(args)
+        input_file = output_file
+        output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_imputed.hdf5'%indiv_id
+        if not sys.path.isfile(output_file):
+            args = {'genotype_file':input_file, 'output_file':output_file, 
+                    'ld_folder':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/LD_DATA/23andme_v4',
+                    'validation_missing_rate':0.01,
+                    'min_ld_r2_thres':0.05}
+            imputor.impute(args)
+        
+        
+        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/height')
+        pred_phens.append(pred_phen)
+    
+    print sp.corrcoef(pred_phen,pred_res['true_phens'])
+    
+        
+    
+    

@@ -1324,6 +1324,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         chr_str = 'Chr%d'%chrom_i
         for sid, nts in it.izip(h5_ig[chr_str]['sids'][...],h5_ig[chr_str]['nts'][...]):
             snp_nt_dict[sid] = nts
+    print 'Found %d SNPs in individual genotype'%len(snp_nt_dict)
     """
     SNP weight file format
     chrom    pos    sid    nt1    nt2    raw_beta     ldpred_beta
