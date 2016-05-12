@@ -77,20 +77,20 @@ def validate_predictions(K=10):
     pred_phens = []
     for indiv_id in pred_res['IID']:
         input_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genome/%s.genome'%indiv_id
-        assert sys.path.isfile(input_file), 'Unable to find file: %s'%input_file
+        assert os.path.isfile(input_file), 'Unable to find file: %s'%input_file
         output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome.hdf5'%indiv_id
-        if not sys.path.isfile(output_file):
+        if not os.path.isfile(output_file):
             args = {'input_file':input_file, 'output_file':output_file}
             imputor.parse_genotype(args)
         input_file = output_file
         output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_converted.hdf5'%indiv_id
-        if not sys.path.isfile(output_file):
+        if not os.path.isfile(output_file):
             args = {'input_file':input_file, 'output_file':output_file, 
                     'nt_map_file':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/NT_DATA/23andme_v4_nt_map.pickled.new'}
             imputor.convert_genotype_nt_key_encoding(args)
         input_file = output_file
         output_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/23andme-genomes_imputed/%s.genome_imputed.hdf5'%indiv_id
-        if not sys.path.isfile(output_file):
+        if not os.path.isfile(output_file):
             args = {'genotype_file':input_file, 'output_file':output_file, 
                     'ld_folder':'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/LD_DATA/23andme_v4',
                     'validation_missing_rate':0.01,
