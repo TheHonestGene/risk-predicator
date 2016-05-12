@@ -31,7 +31,7 @@ def predict(indiv_genot,trait_folder,
     sex: 1 for male, and 2 for female
     """
     indiv_genot = os.path.abspath(indiv_genot)
-    trait_folder = os.path.abspath(trait_folder)
+#     trait_folder = os.path.abspath(trait_folder)
     snp_weights_file = '%s/snp_weights.hdf5' % trait_folder
     prs_weigths_file = '%s/prs_weights.hdf5' % trait_folder
 
