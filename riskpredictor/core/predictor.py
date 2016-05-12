@@ -34,6 +34,7 @@ def predict(indiv_genot,trait_folder,
 #     trait_folder = os.path.abspath(trait_folder)
     snp_weights_file = '%s/snp_weights.hdf5' % trait_folder
     prs_weigths_file = '%s/prs_weights.hdf5' % trait_folder
+    print snp_weights_file
 
     log_extra = kwargs.get('log_extra',{'progress':0})
     partial_progress_inc = (100-log_extra['progress'])/22
