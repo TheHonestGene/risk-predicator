@@ -116,9 +116,14 @@ def validate_predictions(K=1, trait='height'):
     print pred_phens
     print pred_res['true_phens']
     true_phens = sp.array(pred_res['true_phens'])
+    sex = sp.array(pred_res['sex'])
     true_phens.shape = (len(pred_phens), 1)
+    sex.shape = (len(sex), 1)
     pred_phens.shape = (len(pred_phens), 1)
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens])
+    (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
+    print betas
+    Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens, sex])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
         
