@@ -48,6 +48,9 @@ def predict(indiv_genot,trait_folder,
         log_extra['progress']+=partial_progress_inc
         log.info('Computing weights for Chr %s'% chrom_i, extra=log_extra)
         snps = h5f_ig[chr_str]['snps'][...]
+        sids1 = h5f_ig[chr_str]['sids'][...]
+        sids2 = swh5f[chr_str]['sids'][...]
+        assert sp.all(sids1==sids2),'Hmmm'
         snp_weights = swh5f[chr_str]['ldpred_betas'][...] #These are on a per-allele scale.
         prs += sp.dot(snp_weights,snps)
     h5f_ig.close()
