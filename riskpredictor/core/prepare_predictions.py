@@ -1359,6 +1359,8 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
 
     #Now fill new coordinated file, using the same SNP order as the individual genotype!
     oh5f = h5py.File(out_SNP_weights_h5file)
+    num_snps_found = 0
+    num_snps = 0
     for chrom_i in range(1,23):
         chr_str = 'Chr%d'%chrom_i
         print chr_str
@@ -1368,10 +1370,12 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         sids = []
         nts_list = []
         for sid, pos, nts in it.izip(h5_ig[chr_str]['sids'][...],h5_ig[chr_str]['positions'][...],h5_ig[chr_str]['nts'][...]):
+            num_snps +=1
             sid_dict = d.get(sid,None)
             if sid_dict is None:
                 ldpred_betas.append(0)
             else:
+                num_snps_found +=1
                 ldpred_betas.append(sid_dict['ldpred_beta'])
             sids.append(sid)
             positions.append(pos)
@@ -1382,6 +1386,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         chr_g.create_dataset('nts',data=nts_list)
         chr_g.create_dataset('positions',data=positions)
         chr_g.create_dataset('ldpred_betas',data=ldpred_betas)
+    print num_snps, num_snps_found
     h5_ig.close()
     oh5f.close()
     
