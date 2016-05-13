@@ -112,6 +112,7 @@ def validate_predictions(K=1, trait='height'):
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4')
         pred_phens.append(pred_phen)
     
+    pred_phens = sp.array(pred_phens)
     print pred_phens
     print pred_res['true_phens']
     true_phens = sp.array(pred_res['true_phens'])
