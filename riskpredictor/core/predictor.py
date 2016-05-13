@@ -116,8 +116,8 @@ def validate_predictions(K=1, trait='height'):
     print pred_res['true_phens']
     true_phens = sp.array(pred_res['true_phens'])
     true_phens.shape = (len(pred_phens), 1)
-    Xs = sp.hstack([sp.ones((len(pred_phens), 1)),true_phens])
-    (betas, rss_pd, r, s) = linalg.lstsq(Xs, pred_phens)
+    Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens])
+    (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
         
     print sp.corrcoef(pred_phens,pred_res['pval_derived_effects_prs'])
