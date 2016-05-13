@@ -52,7 +52,8 @@ def predict(indiv_genot,trait_folder,
         sids2 = swh5f[chr_str]['sids'][...]
         assert sp.all(sids1==sids2),'Hmmm'
         snp_weights = swh5f[chr_str]['ldpred_betas'][...] #These are on a per-allele scale.
-        prs += sp.dot(snp_weights,snps)
+        prs += sp.sum(snp_weights * snps)
+#         prs += sp.dot(snp_weights,snps)
     h5f_ig.close()
     swh5f.close()
     pwh5f = h5py.File(prs_weigths_file,'r')
