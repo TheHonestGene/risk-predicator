@@ -72,7 +72,7 @@ def validate_predictions(K=1):
     Use the 23andme genomes to validate prediction, by pulling them through the pipeline 
     """
     #Pull out K individuals with phenotypes
-    pred_res = pandas.read_csv('/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/23andme_v4_height_prs.txt', 
+    pred_res = pandas.read_csv('/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/23andme_v4_BMI_prs.txt', 
                                skipinitialspace=True)
     pred_res = pred_res[:K]
     pred_phens = []
@@ -99,7 +99,7 @@ def validate_predictions(K=1):
             imputor.impute(args)
         
         print output_file
-        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/height/23andme_v4')
+        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/bmi/23andme_v4')
         pred_phens.append(pred_phen)
     
     print pred_phen
