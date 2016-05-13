@@ -57,7 +57,7 @@ def predict(indiv_genot,trait_folder,
         prs += sp.dot(snp_weights,snps)
     h5f_ig.close()
     swh5f.close()
-    pwh5f = h5py.File(prs_weigths_file,'r')
+    #pwh5f = h5py.File(prs_weigths_file,'r')
     if sex is not None:
         log.info('Calculating final prediction score for gender %s' % ('male' if sex == 1 else 'female') )
         #weights = pwh5f['sex_adj']
