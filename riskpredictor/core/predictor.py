@@ -122,7 +122,7 @@ def validate_predictions(K=1, trait='height'):
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
         
-    print sp.corrcoef(pred_phens,pred_res['pval_derived_effects_prs'])
+    print sp.corrcoef(pred_phens.flatten(),pred_res['pval_derived_effects_prs'])
     
     print sp.corrcoef(pred_res['pval_derived_effects_prs'],pred_res['true_phens'])
         
