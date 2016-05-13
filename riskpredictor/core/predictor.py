@@ -125,11 +125,11 @@ def validate_predictions(K=1, trait='height'):
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
+    weights_dict = {'unadjusted':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0]}}
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens, sex])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
-    weights_dict = {'unadjusted':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0]},
-                    'sex_adj':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0], 'sex':betas[2][0]}}
+    weights_dict['sex_adj']={'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0], 'sex':betas[2][0]}
 
     oh5f = h5py.File(weights_file,'w')
     for k1 in weights_dict.keys():
