@@ -105,7 +105,7 @@ def validate_predictions(K=1, trait='height'):
         print output_file
         if trait=='height':
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/height/23andme_v4')
-        elif trait=='BMI':
+        elif trait=='bmi':
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4')
         pred_phens.append(pred_phen)
     
