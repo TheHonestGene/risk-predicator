@@ -20,6 +20,7 @@ import os
 log = logging.getLogger(__name__)
 import imputor
 import sys
+from scipy import linalg
 
 
                    
@@ -111,7 +112,10 @@ def validate_predictions(K=1, trait='height'):
     
     print pred_phens
     print pred_res['true_phens']
-    
+    Xs = sp.hstack([sp.ones((len(pred_phens), 1)),pred_res['pval_derived_effects_prs']])
+    (betas, rss_pd, r, s) = linalg.lstsq(Xs, pred_phens)
+    print betas
+        
     print sp.corrcoef(pred_phens,pred_res['pval_derived_effects_prs'])
     
     print sp.corrcoef(pred_res['pval_derived_effects_prs'],pred_res['true_phens'])
