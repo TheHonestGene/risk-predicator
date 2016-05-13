@@ -98,9 +98,12 @@ def validate_predictions(K=1):
                     'min_ld_r2_thres':0.05}
             imputor.impute(args)
         
-        
+        print output_file
         pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/height/23andme_v4')
         pred_phens.append(pred_phen)
+    
+    print pred_phen
+    print pred_res['true_phens']
     
     print sp.corrcoef(pred_phen,pred_res['true_phens'])
     
