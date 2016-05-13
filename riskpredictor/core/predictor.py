@@ -102,10 +102,10 @@ def validate_predictions(K=1):
         pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4')
         pred_phens.append(pred_phen)
     
-    print pred_phen
+    print pred_phens
     print pred_res['true_phens']
     
-    print sp.corrcoef(pred_phen,pred_res['true_phens'])
+    print sp.corrcoef(pred_phens,pred_res['true_phens'])
     
         
     
