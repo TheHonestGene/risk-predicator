@@ -108,8 +108,10 @@ def validate_predictions(K=1, trait='height'):
         print output_file
         if trait=='height':
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/height/23andme_v4')
+            weights_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/height/23andme_v4/prs_weights.hdf5'
         elif trait=='bmi':
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4')
+            weights_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4/prs_weights.hdf5'
         pred_phens.append(pred_phen)
     
     pred_phens = sp.array(pred_phens)
@@ -126,6 +128,15 @@ def validate_predictions(K=1, trait='height'):
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens, sex])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
     print betas
+    weights_dict = {'unadjusted':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0]},
+                    'sex_adj':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0], 'sex':betas[2][0]}}
+
+    oh5f = h5py.File(weights_file,'w')
+    for k1 in weights_dict.keys():
+        kg = oh5f.create_group(k1)
+        for k2 in weights_dict[k1]:
+            kg.create_dataset(k2,data=sp.array(weights_dict[k1][k2]))
+    oh5f.close()
         
     print sp.corrcoef(pred_phens.flatten(),pred_res['pval_derived_effects_prs'])
     
