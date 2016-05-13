@@ -1344,7 +1344,7 @@ def coord_snp_weights_file(indiv_genot, SNP_weights_file, out_SNP_weights_h5file
         d = chrom_dict[chr_str]
         sid = row['sid']
 #         pos = row['pos']
-        ldpred_beta = row['raw_beta'] 
+        ldpred_beta = row['ldpred_beta'] 
         nts = snp_nt_dict.get(sid,None) 
         assert nts is not None, 'Arrrgh, SNP weight coordination failed!'
         nt1 = row['nt1']

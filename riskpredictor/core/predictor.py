@@ -112,7 +112,7 @@ def validate_predictions(K=1, trait='height'):
     print pred_phens
     print pred_res['true_phens']
     
-    print sp.corrcoef(pred_phens,pred_res['true_phens'])
+    print sp.corrcoef(pred_phens,pred_res['pval_derived_effects_prs'])
     
     print sp.corrcoef(pred_res['pval_derived_effects_prs'],pred_res['true_phens'])
         
