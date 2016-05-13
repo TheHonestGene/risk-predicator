@@ -99,7 +99,7 @@ def validate_predictions(K=1):
             imputor.impute(args)
         
         print output_file
-        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/data_for_pipeline/PRED_DATA/bmi/23andme_v4')
+        pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/bmi/23andme_v4')
         pred_phens.append(pred_phen)
     
     print pred_phen
