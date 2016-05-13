@@ -72,7 +72,7 @@ def validate_predictions(K=1):
     Use the 23andme genomes to validate prediction, by pulling them through the pipeline 
     """
     #Pull out K individuals with phenotypes
-    pred_res = pandas.read_csv('/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/23andme_v4_BMI_prs.txt', 
+    pred_res = pandas.read_csv('/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/23andme_v4_bmi_prs.txt', 
                                skipinitialspace=True)
     pred_res = pred_res[:K]
     pred_phens = []
