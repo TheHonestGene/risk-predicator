@@ -24,8 +24,7 @@ from scipy import linalg
 
 
                    
-def predict(indiv_genot,trait_folder,
-                   sex=None,pcs=None,**kwargs):
+def predict(indiv_genot,trait_folder,pcs=None,**kwargs):
     """
     predict height of an individual.
     
@@ -35,13 +34,15 @@ def predict(indiv_genot,trait_folder,
     trait_folder = os.path.abspath(trait_folder)
     snp_weights_file = '%s/snp_weights.hdf5' % trait_folder
     prs_weigths_file = '%s/prs_weights.hdf5' % trait_folder
-    print snp_weights_file
-
+    # print snp_weights_file
     log_extra = kwargs.get('log_extra',{'progress':0})
     partial_progress_inc = (100-log_extra['progress'])/22
     log.info('Starting prediction for %s' % trait_folder)
 
     h5f_ig = h5py.File(indiv_genot)
+    sex = None
+    if 'gender' in h5f_ig.attrs:
+        sex = 1 if h5f_ig.attrs['gender'] == 'm' else 2
     swh5f = h5py.File(snp_weights_file,'r')
     prs = 0
     for chrom_i in range(1,23):
@@ -53,21 +54,18 @@ def predict(indiv_genot,trait_folder,
         sids2 = swh5f[chr_str]['sids'][...]
         assert sp.all(sids1==sids2),'Hmmm'
         snp_weights = swh5f[chr_str]['ldpred_betas'][...] #These are on a per-allele scale.
-#         prs += sp.sum(snp_weights * snps)
         prs += sp.dot(snp_weights,snps)
     h5f_ig.close()
     swh5f.close()
-#     pwh5f = h5py.File(prs_weigths_file,'r')
+    pwh5f = h5py.File(prs_weigths_file,'r')
     if sex is not None:
         log.info('Calculating final prediction score for gender %s' % ('male' if sex == 1 else 'female') )
-#         weights = pwh5f['sex_adj']
-#         pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs + weights['sex'][...]*sex
-        pred_phen = prs
+        weights = pwh5f['sex_adj']
+        pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs + weights['sex'][...]*sex
     else:
         log.info('Calculating final prediction score without gender information')
-#         weights = pwh5f['unadjusted']
-#         pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs
-        pred_phen = prs
+        weights = pwh5f['unadjusted']
+        pred_phen = weights['Intercept'][...]+weights['ldpred_prs_effect'][...]*prs
     log.info('Finished prediction',extra=log_extra)
     return pred_phen
 
@@ -105,7 +103,7 @@ def validate_predictions(K=1, trait='height'):
                     'min_ld_r2_thres':0.05}
             imputor.impute(args)
         
-        print output_file
+        #print output_file
         if trait=='height':
             pred_phen = predict(output_file,'/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/height/23andme_v4')
             weights_file = '/home/bjarni/TheHonestGene/faststorage/prediction_data/weight_files/height/23andme_v4/prs_weights.hdf5'
@@ -115,8 +113,8 @@ def validate_predictions(K=1, trait='height'):
         pred_phens.append(pred_phen)
     
     pred_phens = sp.array(pred_phens)
-    print pred_phens
-    print pred_res['true_phens']
+    #print pred_phens
+    #print pred_res['true_phens']
     true_phens = sp.array(pred_res['true_phens'])
     sex = sp.array(pred_res['sex'])
     true_phens.shape = (len(pred_phens), 1)
@@ -124,11 +122,11 @@ def validate_predictions(K=1, trait='height'):
     pred_phens.shape = (len(pred_phens), 1)
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
-    print betas
+    #print betas
     weights_dict = {'unadjusted':{'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0]}}
     Xs = sp.hstack([sp.ones((len(pred_phens), 1)), pred_phens, sex])
     (betas, rss_pd, r, s) = linalg.lstsq(Xs, true_phens)
-    print betas
+    #print betas
     weights_dict['sex_adj']={'Intercept':betas[0][0],'ldpred_prs_effect':betas[1][0], 'sex':betas[2][0]}
 
     oh5f = h5py.File(weights_file,'w')
@@ -138,9 +136,9 @@ def validate_predictions(K=1, trait='height'):
             kg.create_dataset(k2,data=sp.array(weights_dict[k1][k2]))
     oh5f.close()
         
-    print sp.corrcoef(pred_phens.flatten(),pred_res['pval_derived_effects_prs'])
+    #print sp.corrcoef(pred_phens.flatten(),pred_res['pval_derived_effects_prs'])
     
-    print sp.corrcoef(pred_res['pval_derived_effects_prs'],pred_res['true_phens'])
+    #print sp.corrcoef(pred_res['pval_derived_effects_prs'],pred_res['true_phens'])
         
     
     
